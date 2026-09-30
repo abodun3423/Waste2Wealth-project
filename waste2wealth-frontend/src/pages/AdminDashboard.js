@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar';
 
 function AdminDashboard() {
-  const navigate = useNavigate();
+
 
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,12 +54,6 @@ function AdminDashboard() {
   }, [token]);
 
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-
-    navigate('/');
-  };
 
 
   const formatDate = (date) => {

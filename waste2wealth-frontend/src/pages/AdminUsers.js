@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar';
 
 function AdminUsers() {
-  const navigate = useNavigate();
+  
 
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
@@ -74,12 +73,6 @@ function AdminUsers() {
   };
 
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-
-    navigate('/');
-  };
 
 
   if (loading) {
