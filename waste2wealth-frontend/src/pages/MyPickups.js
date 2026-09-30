@@ -20,7 +20,7 @@ function MyPickups() {
         setMessage('');
 
         const response = await fetch(
-          'http://localhost:5000/api/pickups',
+          'https://waste2wealth-project-3.onrender.com/api/pickups',
           {
             headers: {
               Authorization: `Bearer ${token}`

@@ -18,7 +18,7 @@ function AdminCompanies() {
       const token = localStorage.getItem('token');
 
       const response = await fetch(
-        'http://localhost:5000/api/admin/companies',
+        'https://waste2wealth-project-3.onrender.com/api/admin/companies',
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -52,7 +52,7 @@ function AdminCompanies() {
       const token = localStorage.getItem('token');
 
       const response = await fetch(
-        `http://localhost:5000/api/admin/companies/${company._id}/verification`,
+        `https://waste2wealth-project-3.onrender.com/api/admin/companies/${company._id}/verification`,
         {
           method: 'PATCH',
           headers: {

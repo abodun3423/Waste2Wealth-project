@@ -17,7 +17,7 @@ function AdminDashboard() {
         setError('');
 
         const response = await fetch(
-          'http://localhost:5000/api/admin/dashboard',
+          'https://waste2wealth-project-3.onrender.com/api/admin/dashboard',
           {
             headers: {
               Authorization: `Bearer ${token}`

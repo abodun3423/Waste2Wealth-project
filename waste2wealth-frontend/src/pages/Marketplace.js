@@ -55,7 +55,7 @@ function Marketplace() {
     const fetchPoints = async () => {
       try {
         const response = await fetch(
-          'http://localhost:5000/api/rewards',
+          'https://waste2wealth-project-3.onrender.com/api/rewards',
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -89,7 +89,7 @@ function Marketplace() {
       setRedeeming(reward.id);
 
       const response = await fetch(
-        'http://localhost:5000/api/redemptions',
+        'https://waste2wealth-project-3.onrender.com/api/redemptions',
         {
           method: 'POST',
           headers: {

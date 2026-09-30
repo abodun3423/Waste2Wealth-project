@@ -17,7 +17,7 @@ function AdminUsers() {
         setLoading(true);
 
         const response = await fetch(
-          'http://localhost:5000/api/admin/users',
+          'https://waste2wealth-project-3.onrender.com/api/admin/users',
           {
             headers: {
               Authorization: `Bearer ${token}`

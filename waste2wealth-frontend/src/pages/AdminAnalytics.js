@@ -14,7 +14,7 @@ function AdminAnalytics() {
       const token = localStorage.getItem('token');
 
       const response = await fetch(
-        'http://localhost:5000/api/admin/analytics',
+        'https://waste2wealth-project-3.onrender.com/api/admin/analytics',
         {
           headers: {
             Authorization: `Bearer ${token}`

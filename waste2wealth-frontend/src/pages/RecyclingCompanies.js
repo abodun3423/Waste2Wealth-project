@@ -72,7 +72,7 @@ function RecyclingCompanies() {
       query.append('pickupAvailable', 'true');
 
       const response = await fetch(
-        `http://localhost:5000/api/companies?${query.toString()}`,
+        `https://waste2wealth-project-3.onrender.com/api/companies?${query.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -229,7 +229,7 @@ function RecyclingCompanies() {
       setPickupMessage('');
 
       const response = await fetch(
-        'http://localhost:5000/api/pickups',
+        'https://waste2wealth-project-3.onrender.com/api/pickups',
         {
           method: 'POST',
 

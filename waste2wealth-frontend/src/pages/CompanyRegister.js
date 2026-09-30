@@ -92,7 +92,7 @@ function CompanyRegister() {
       setLoading(true);
 
       const response = await fetch(
-        'http://localhost:5000/api/company-auth/register',
+        'https://waste2wealth-project-3.onrender.com/api/company-auth/register',
         {
           method: 'POST',
           headers: {

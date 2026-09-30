@@ -25,7 +25,7 @@ function AdminRedemptions() {
       const token = localStorage.getItem('token');
 
       const response = await fetch(
-        'http://localhost:5000/api/admin/redemptions',
+        'https://waste2wealth-project-3.onrender.com/api/admin/redemptions',
         {
           headers: {
             Authorization: `Bearer ${token}`

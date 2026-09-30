@@ -15,7 +15,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        'http://localhost:5000/api/users/login',
+        'https://waste2wealth-project-3.onrender.com/api/users/login',
         {
           method: 'POST',
           headers: {

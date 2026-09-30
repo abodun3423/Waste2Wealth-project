@@ -22,19 +22,19 @@ function Rewards() {
           redemptionResponse,
           recyclablesResponse
         ] = await Promise.all([
-          fetch('http://localhost:5000/api/rewards', {
+          fetch('https://waste2wealth-project-3.onrender.com/api/rewards', {
             headers: {
               Authorization: `Bearer ${token}`
             }
           }),
 
-          fetch('http://localhost:5000/api/redemptions', {
+          fetch('https://waste2wealth-project-3.onrender.com/api/redemptions', {
             headers: {
               Authorization: `Bearer ${token}`
             }
           }),
 
-          fetch('http://localhost:5000/api/recyclables', {
+          fetch('https://waste2wealth-project-3.onrender.com/api/recyclables', {
             headers: {
               Authorization: `Bearer ${token}`
             }
