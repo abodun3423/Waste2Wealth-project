@@ -4,7 +4,11 @@ import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Login from './pages/Login';
+import AccessPortal from './pages/AccessPortal';
 import Dashboard from './pages/Dashboard';
+import Register from './pages/Register';
+import CompanyRegister from './pages/CompanyRegister';
+import CompanyLogin from './pages/CompanyLogin';
 import Marketplace from './pages/Marketplace';
 import Rewards from './pages/Rewards';
 import RecyclingCompanies from './pages/RecyclingCompanies';
@@ -47,8 +51,19 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<AccessPortal />} />
+         <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
+        <Route
+          path="/company/login"
+          element={<CompanyLogin />}
+        />  
+
+        <Route
+          path="/company/register"
+          element={<CompanyRegister />}
+        />
         <Route
           path="/dashboard"
           element={

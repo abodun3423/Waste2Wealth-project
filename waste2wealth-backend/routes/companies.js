@@ -105,8 +105,8 @@ router.get('/', auth, async (req, res) => {
         pickupAvailable === 'true';
     }
 
-    const companies = await RecyclingCompany.find(filter);
-
+    const companies = await RecyclingCompany.find(filter).select('-password');
+    
     // If user latitude and longitude are not provided,
     // return the companies normally.
     if (!latitude || !longitude) {

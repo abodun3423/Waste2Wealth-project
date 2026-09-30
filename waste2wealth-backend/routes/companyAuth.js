@@ -5,6 +5,128 @@ const jwt = require('jsonwebtoken');
 
 const RecyclingCompany = require('../models/RecyclingCompany');
 
+// ======================================
+// COMPANY REGISTRATION
+// ======================================
+router.post('/register', async (req, res) => {
+  try {
+    const {
+      companyName,
+      email,
+      phone,
+      address,
+      city,
+      state,
+      materialsAccepted,
+      pickupAvailable,
+      password
+    } = req.body;
+
+    // Check required fields
+    if (
+      !companyName ||
+      !email ||
+      !phone ||
+      !address ||
+      !city ||
+      !state ||
+      !password
+    ) {
+      return res.status(400).json({
+        error: 'Required company information is missing'
+      });
+    }
+
+    // Password validation
+    if (password.length < 6) {
+      return res.status(400).json({
+        error: 'Password must be at least 6 characters'
+      });
+    }
+
+    // At least one material must be selected
+    if (
+      !Array.isArray(materialsAccepted) ||
+      materialsAccepted.length === 0
+    ) {
+      return res.status(400).json({
+        error: 'Select at least one recyclable material'
+      });
+    }
+
+    const normalizedEmail =
+      email.toLowerCase().trim();
+
+    // Prevent duplicate company accounts
+    const existingCompany =
+      await RecyclingCompany.findOne({
+        email: normalizedEmail
+      });
+
+    if (existingCompany) {
+      return res.status(400).json({
+        error:
+          'A recycling company with this email already exists'
+      });
+    }
+
+    // Hash password
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
+
+    // Create company
+    const company =
+      new RecyclingCompany({
+        companyName: companyName.trim(),
+        email: normalizedEmail,
+        phone: phone.trim(),
+        address: address.trim(),
+        city: city.trim(),
+        state: state.trim(),
+        materialsAccepted,
+        pickupAvailable:
+          pickupAvailable === true,
+        password: hashedPassword,
+
+        // Public registration must never
+        // approve itself.
+        verified: false,
+        accountActive: true
+      });
+
+    await company.save();
+
+    res.status(201).json({
+      message:
+        'Company registration successful. Your account is awaiting verification.',
+
+      company: {
+        _id: company._id,
+        companyName: company.companyName,
+        email: company.email,
+        phone: company.phone,
+        city: company.city,
+        state: company.state,
+        materialsAccepted:
+          company.materialsAccepted,
+        pickupAvailable:
+          company.pickupAvailable,
+        verified: company.verified
+      }
+    });
+
+  } catch (error) {
+    console.error(
+      'Company registration error:',
+      error
+    );
+
+    res.status(500).json({
+      error: 'Server error'
+    });
+  }
+});
+
 
 // ======================================
 // COMPANY ACCOUNT SETUP
