@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import Register from './pages/Register';
 import CompanyRegister from './pages/CompanyRegister';
 import CompanyLogin from './pages/CompanyLogin';
+import CompanyDashboard from './pages/CompanyDashboard';
 import Marketplace from './pages/Marketplace';
 import Rewards from './pages/Rewards';
 import RecyclingCompanies from './pages/RecyclingCompanies';
@@ -64,6 +65,12 @@ function App() {
           path="/company/register"
           element={<CompanyRegister />}
         />
+
+        <Route
+          path="/company/dashboard"
+          element={<CompanyDashboard />}
+        />
+        
         <Route
           path="/dashboard"
           element={
