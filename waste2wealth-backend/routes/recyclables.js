@@ -29,24 +29,12 @@ router.post('/', auth, async (req, res) => {
 
     await recyclable.save();
 
-    // 1 kg = 10 reward points
-    const pointsEarned = numericWeight * 10;
-
-    const user = await User.findByIdAndUpdate(
-      req.userId,
-      {
-        $inc: { points: pointsEarned }
-      },
-      {
-        new: true
-      }
-    );
-
+    // Uploaded weight is user-reported and must not generate rewards.
+    // Points are awarded only after an approved company verifies a collected pickup.
     res.status(201).json({
-      message: 'Recyclable uploaded successfully',
+      message: 'Recyclable uploaded. Points are awarded only after verified company collection.',
       recyclable,
-      pointsEarned,
-      totalPoints: user.points
+      pointsEarned: 0
     });
 
   } catch (err) {
