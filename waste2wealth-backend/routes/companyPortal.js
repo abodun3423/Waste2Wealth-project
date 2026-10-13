@@ -5,6 +5,7 @@ const RecyclingCompany = require('../models/RecyclingCompany');
 const PickupRequest = require('../models/PickupRequest');
 const User = require('../models/User');
 const companyAuth = require('../middleware/companyAuth');
+const verifiedCompany = require('../middleware/verifiedCompany');
 
 
 // ======================================
@@ -77,7 +78,7 @@ router.get('/pickups', companyAuth, async (req, res) => {
 // ======================================
 // UPDATE COMPANY'S PICKUP STATUS
 // ======================================
-router.patch('/pickups/:id/status', companyAuth, async (req, res) => {
+router.patch('/pickups/:id/status', companyAuth, verifiedCompany, async (req, res) => {
   try {
     const {
       status,
