@@ -3,12 +3,13 @@ const router = express.Router();
 
 const RecyclingCompany = require('../models/RecyclingCompany');
 const auth = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 
 
 // ======================================
 // ADD A RECYCLING COMPANY
 // ======================================
-router.post('/', auth, async (req, res) => {
+router.post('/', adminAuth, async (req, res) => {
   try {
     const {
       companyName,
@@ -82,10 +83,10 @@ router.get('/', auth, async (req, res) => {
   longitude
 } = req.query;
 
-    const filter = {};
+    const filter = { verified: true, accountActive: true };
 
     if (companyName) {
-      filter.companyName = new RegExp(companyName, 'i');
+      filter.companyName = new RegExp(String(companyName).replace(/[.*+?^${}()|[\]\\]/g, '\\new RegExp(companyName, 'i')'), 'i');
     }
 
     if (city) {
