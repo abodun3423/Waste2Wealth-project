@@ -86,7 +86,7 @@ router.get('/', auth, async (req, res) => {
     const filter = { verified: true, accountActive: true };
 
     if (companyName) {
-      filter.companyName = new RegExp(String(companyName).replace(/[.*+?^${}()|[\]\\]/g, '\\new RegExp(companyName, 'i')'), 'i');
+      filter.companyName = new RegExp(String(companyName).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
     }
 
     if (city) {
