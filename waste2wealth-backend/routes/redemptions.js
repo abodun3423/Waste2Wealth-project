@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 
 const User = require('../models/User');
@@ -48,43 +49,36 @@ router.post('/', auth, async (req, res) => {
       });
     }
 
-    const user = await User.findById(req.userId);
-
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found'
+    const session = await mongoose.startSession();
+    try {
+      const result = await session.withTransaction(async () => {
+        const user = await User.findOneAndUpdate(
+          { _id: req.userId, points: { $gte: reward.points } },
+          { $inc: { points: -reward.points } },
+          { new: true, session }
+        );
+        if (!user) {
+          const exists = await User.exists({ _id: req.userId }).session(session);
+          const err = new Error(exists ? 'Not enough points' : 'User not found');
+          err.status = exists ? 400 : 404;
+          throw err;
+        }
+        const [redemption] = await Redemption.create([{
+          user: req.userId,
+          rewardName: reward.name,
+          pointsSpent: reward.points,
+          status: 'pending'
+        }], { session });
+        return { redemption, remainingPoints: user.points };
       });
+      return res.status(201).json({ message: 'Reward redeemed successfully', ...result });
+    } finally {
+      await session.endSession();
     }
-
-    const currentPoints = user.points || 0;
-
-    if (currentPoints < reward.points) {
-      return res.status(400).json({
-        error: 'Not enough points'
-      });
-    }
-
-    user.points = currentPoints - reward.points;
-
-    await user.save();
-
-    const redemption = new Redemption({
-      user: req.userId,
-      rewardName: reward.name,
-      pointsSpent: reward.points,
-      status: 'pending'
-    });
-
-    await redemption.save();
-
-    res.status(201).json({
-      message: 'Reward redeemed successfully',
-      redemption,
-      remainingPoints: user.points
-    });
 
   } catch (err) {
     console.error('Redemption error:', err);
+    if (err.status) return res.status(err.status).json({ error: err.message });
 
     res.status(500).json({
       error: 'Server error'
