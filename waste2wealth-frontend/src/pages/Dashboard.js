@@ -10,6 +10,7 @@ function Dashboard() {
   const [pickups, setPickups] = useState([]);
   const [redemptions, setRedemptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [historyFilter, setHistoryFilter] = useState('All');
 
   const token = localStorage.getItem('token');
 
@@ -98,7 +99,7 @@ function Dashboard() {
       ]);
 
       // The API intentionally does not change reward balances for unverified uploads.
-      setMessage('Recyclable recorded successfully. Points will be awarded only after a verified company completes collection and confirms the actual weight.');
+      setMessage('Success: Recyclable recorded successfully. Points will be awarded only after a verified company completes collection and confirms the actual weight.');
 
     } catch (error) {
       console.error('Upload error:', error);
@@ -138,6 +139,10 @@ function Dashboard() {
       points: -(Number(item.pointsSpent) || 0)
     }))
   ].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+  const filteredEvents = historyFilter === 'All' ? events : events.filter(event => event.kind === historyFilter);
+  const pendingPickups = pickups.filter(item => ['pending', 'accepted', 'collected'].includes(item.status)).length;
+  const lifetimeEarned = verifiedPickups.reduce((sum, p) => sum + (Number(p.pointsAwarded) || 0), 0);
 
   return (
     <div className="page-container">
@@ -193,6 +198,12 @@ function Dashboard() {
           <strong>{recyclables.length}</strong>
           <span>📦 Upload submissions (not verified collections)</span>
         </div>
+      </div>
+
+      <div className="stats-grid dashboard-stats" aria-label="Additional recycling statistics">
+        <div className="card stat-card"><h4>Pending Pickups</h4><strong>{pendingPickups}</strong><span>🚚 Awaiting collection or verification</span></div>
+        <div className="card stat-card"><h4>Points from Verified Pickups</h4><strong>{lifetimeEarned.toLocaleString()}</strong><span>⭐ Tracked awards (not current balance)</span></div>
+        <div className="card stat-card"><h4>Redemptions</h4><strong>{redemptions.length}</strong><span>🎁 Recorded reward requests</span></div>
       </div>
 
       <div className="card form-card">
@@ -285,6 +296,10 @@ function Dashboard() {
           <div>
             <h3>Recycling &amp; Rewards History</h3>
             <p>All recorded uploads, pickup progress and reward redemptions for this account.</p>
+            <label htmlFor="history-filter" style={{display:'block', marginTop:'0.8rem'}}>Filter history</label>
+            <select id="history-filter" className="input" value={historyFilter} onChange={(e) => setHistoryFilter(e.target.value)}>
+              <option>All</option><option>Pickup</option><option>Upload</option><option>Redemption</option>
+            </select>
           </div>
         </div>
         {loading ? <p>Loading your history...</p> : (
@@ -294,16 +309,16 @@ function Dashboard() {
               <p role="note">Your current balance includes {unexplainedBalance > 0 ? 'points not traceable to the available verified pickup and redemption records' : 'historical adjustments or redemptions not fully explained by the available pickup records'}.
                 Existing balances have been preserved; no historical entries were invented.</p>
             )}
-            {events.length === 0 ? (
+            {filteredEvents.length === 0 ? (
               <div className="empty-state">
-                <p>No recorded upload, pickup or redemption history is available yet. An existing points balance may predate these records.</p>
+                <p>No matching activity is available. Choose another filter or create a new recycling submission.</p>
               </div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
                 <table className="data-table">
                   <thead><tr><th>Date</th><th>Activity</th><th>Material / Reward</th><th>Weight</th><th>Status / Verification</th><th>Points</th></tr></thead>
                   <tbody>
-                    {events.map((event) => (
+                    {filteredEvents.map((event) => (
                       <tr key={event.id}>
                         <td>{event.date && !Number.isNaN(new Date(event.date).getTime()) ? new Date(event.date).toLocaleDateString('en-NG') : 'Date unavailable'}</td>
                         <td>{event.kind}</td><td>{event.label}</td>
