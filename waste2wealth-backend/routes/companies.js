@@ -4,6 +4,9 @@ const router = express.Router();
 const RecyclingCompany = require('../models/RecyclingCompany');
 const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
+// Escape user-supplied search terms to avoid regex injection and excessive patterns.
+const safeSearch = (value) => new RegExp(String(value).slice(0, 80).replace(/[.*+?^${}()|[\]\\]/g, '\\const adminAuth = require('../middleware/adminAuth');'), 'i');
+
 
 
 // ======================================
@@ -86,19 +89,19 @@ router.get('/', auth, async (req, res) => {
     const filter = { verified: true, accountActive: true };
 
     if (companyName) {
-      filter.companyName = new RegExp(String(companyName).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      filter.companyName = safeSearch(companyName);
     }
 
     if (city) {
-      filter.city = new RegExp(city, 'i');
+      filter.city = safeSearch(city);
     }
 
     if (state) {
-      filter.state = new RegExp(state, 'i');
+      filter.state = safeSearch(state);
     }
 
     if (material) {
-      filter.materialsAccepted = new RegExp(material, 'i');
+      filter.materialsAccepted = safeSearch(material);
     }
 
     if (pickupAvailable !== undefined) {
