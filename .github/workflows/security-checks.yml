@@ -1,0 +1,54 @@
+name: Waste2Wealth verification
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: ['security/**']
+permissions:
+  contents: read
+jobs:
+  backend-unit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: waste2wealth-backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: waste2wealth-backend/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit
+      - name: Audit production dependencies for critical advisories
+        run: npm audit --omit=dev --audit-level=critical
+      - name: Start isolated MongoDB replica set
+        run: |
+          docker run -d --name waste2wealth-ci-mongo -p 27017:27017 mongo:7.0 --replSet rs0 --bind_ip_all
+          for i in $(seq 1 30); do
+            if docker exec waste2wealth-ci-mongo mongosh --quiet --eval 'db.adminCommand({ping:1}).ok' >/dev/null 2>&1; then break; fi
+            sleep 2
+          done
+          docker exec waste2wealth-ci-mongo mongosh --quiet --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"localhost:27017"}]})'
+          for i in $(seq 1 30); do
+            if docker exec waste2wealth-ci-mongo mongosh --quiet --eval 'db.hello().isWritablePrimary' | grep -q true; then break; fi
+            sleep 2
+          done
+      - name: Unit and isolated security integration tests
+        env:
+          TEST_MONGO_URI: mongodb://127.0.0.1:27017/waste2wealth_security_test?replicaSet=rs0&directConnection=true
+        run: npm test
+  frontend-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: waste2wealth-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: waste2wealth-frontend/package-lock.json
+      - run: npm ci --no-audit
+      - run: CI=false npm run build

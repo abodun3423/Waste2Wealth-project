@@ -1,7 +1,8 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = 'https://waste2wealth-project-3.onrender.com';
+
 
 function CompanyDashboard() {
   const navigate = useNavigate();
@@ -515,12 +516,17 @@ function CompanyDashboard() {
                     )}
 
                     <div className="company-pickup-actions">
+                      {company && (!company.verified || company.accountActive === false) && (
+                        <p className="company-verification-warning">
+                          {company.accountActive === false
+                            ? 'Your company account is deactivated. Pickup management is disabled.'
+                            : 'Your company is awaiting administrator verification. Pickup management is disabled.'}
+                        </p>
+                      )}
                       {pickup.status === 'pending' && (
                         <>
                           <button
-                            disabled={
-                              updatingId === pickup._id
-                            }
+                            disabled={updatingId === pickup._id || !company?.verified || company?.accountActive === false}
                             onClick={() =>
                               updatePickupStatus(
                                 pickup._id,
@@ -533,9 +539,7 @@ function CompanyDashboard() {
 
                           <button
                             className="company-cancel-btn"
-                            disabled={
-                              updatingId === pickup._id
-                            }
+                            disabled={updatingId === pickup._id || !company?.verified || company?.accountActive === false}
                             onClick={() =>
                               updatePickupStatus(
                                 pickup._id,
@@ -551,9 +555,7 @@ function CompanyDashboard() {
                       {pickup.status === 'accepted' && (
                         <>
                           <button
-                            disabled={
-                              updatingId === pickup._id
-                            }
+                            disabled={updatingId === pickup._id || !company?.verified || company?.accountActive === false}
                             onClick={() =>
                               updatePickupStatus(
                                 pickup._id,
@@ -566,9 +568,7 @@ function CompanyDashboard() {
 
                           <button
                             className="company-cancel-btn"
-                            disabled={
-                              updatingId === pickup._id
-                            }
+                            disabled={updatingId === pickup._id || !company?.verified || company?.accountActive === false}
                             onClick={() =>
                               updatePickupStatus(
                                 pickup._id,
@@ -615,9 +615,7 @@ function CompanyDashboard() {
                             />
 
                             <button
-                              disabled={
-                                updatingId === pickup._id
-                              }
+                              disabled={updatingId === pickup._id || !company?.verified || company?.accountActive === false}
                               onClick={() =>
                                 updatePickupStatus(
                                   pickup._id,

@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import loginImage from '../assets/login-recycling.jpg';
@@ -30,7 +31,7 @@ function Register() {
       setLoading(true);
 
       const response = await fetch(
-        'https://waste2wealth-project-3.onrender.com/api/users/register',
+        `${API_URL}/api/users/register`,
         {
           method: 'POST',
           headers: {

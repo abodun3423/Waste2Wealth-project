@@ -1,56 +1,34 @@
 require('dotenv').config();
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-
 const User = require('./models/User');
 
-const createAdmin = async () => {
+async function createAdmin() {
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.ADMIN_INITIAL_PASSWORD;
+  if (!process.env.MONGO_URI || !email || !password || password.length < 16) {
+    throw new Error('Set MONGO_URI, ADMIN_EMAIL and a strong ADMIN_INITIAL_PASSWORD of at least 16 characters');
+  }
   try {
     await mongoose.connect(process.env.MONGO_URI);
-
-    console.log('✅ MongoDB connected');
-
-    const adminEmail = 'admin@waste2wealth.com';
-
-    const existingAdmin = await User.findOne({
-      email: adminEmail
-    });
-
-    if (existingAdmin) {
-      console.log('⚠️ Admin account already exists');
-      await mongoose.disconnect();
+    if (await User.exists({ email })) {
+      console.log('Admin account already exists; no changes made');
       return;
     }
-
-    const hashedPassword = await bcrypt.hash(
-      'ChangeMe123!',
-      10
-    );
-
-    const admin = new User({
+    await User.create({
       name: 'Waste2Wealth Admin',
-      email: adminEmail,
-      password: hashedPassword,
+      email,
+      password: await bcrypt.hash(password, 12),
       role: 'admin'
     });
-
-    await admin.save();
-
-    console.log('✅ Admin account created successfully');
-    console.log(`Email: ${admin.email}`);
-    console.log(`Role: ${admin.role}`);
-
-    await mongoose.disconnect();
-
-  } catch (error) {
-    console.error(
-      '❌ Create admin error:',
-      error
-    );
-
+    console.log('New admin account created. Remove ADMIN_INITIAL_PASSWORD from the environment after setup.');
+  } finally {
     await mongoose.disconnect();
   }
-};
-
-createAdmin();
+}
+if (require.main === module) {
+  createAdmin().catch(err => {
+    console.error('Admin setup failed:', err.message);
+    process.exitCode = 1;
+  });
+}

@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useState } from 'react';
 import RecyclableForm from '../components/RecyclableForm';
 import dashboardHero from '../assets/dashboard-hero.jpg';
@@ -6,6 +7,9 @@ function Dashboard() {
   const [recyclables, setRecyclables] = useState([]);
   const [message, setMessage] = useState('');
   const [points, setPoints] = useState(0);
+  const [pickups, setPickups] = useState([]);
+  const [redemptions, setRedemptions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem('token');
 
@@ -15,22 +19,23 @@ function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [recyclablesResponse, rewardsResponse] = await Promise.all([
-          fetch('https://waste2wealth-project-3.onrender.com/api/recyclables', {
+        setLoading(true);
+        const [recyclablesResponse, rewardsResponse, pickupsResponse, redemptionsResponse] = await Promise.all([
+          fetch(`${API_URL}/api/recyclables`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           }),
 
-          fetch('https://waste2wealth-project-3.onrender.com/api/rewards', {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          })
+          fetch(`${API_URL}/api/rewards`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${API_URL}/api/pickups`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${API_URL}/api/redemptions`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
 
         const recyclablesData = await recyclablesResponse.json();
         const rewardsData = await rewardsResponse.json();
+        const pickupsData = await pickupsResponse.json();
+        const redemptionsData = await redemptionsResponse.json();
 
         if (!recyclablesResponse.ok) {
           throw new Error(
@@ -44,12 +49,18 @@ function Dashboard() {
           );
         }
 
+        if (!pickupsResponse.ok || !Array.isArray(pickupsData)) throw new Error(pickupsData.error || 'Failed to load pickup history');
+        if (!redemptionsResponse.ok || !Array.isArray(redemptionsData)) throw new Error(redemptionsData.error || 'Failed to load reward history');
         setRecyclables(recyclablesData);
-        setPoints(rewardsData.points || 0);
+        setPickups(pickupsData);
+        setRedemptions(redemptionsData);
+        setPoints(Number(rewardsData.points) || 0);
 
       } catch (error) {
         console.error('Dashboard error:', error);
         setMessage(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -61,7 +72,7 @@ function Dashboard() {
       setMessage('');
 
       const response = await fetch(
-        'https://waste2wealth-project-3.onrender.com/api/recyclables',
+        `${API_URL}/api/recyclables`,
         {
           method: 'POST',
           headers: {
@@ -86,11 +97,8 @@ function Dashboard() {
         ...previousRecyclables
       ]);
 
-      setPoints(data.totalPoints);
-
-      setMessage(
-        `Recyclable uploaded successfully. You earned ${data.pointsEarned} points!`
-      );
+      // The API intentionally does not change reward balances for unverified uploads.
+      setMessage('Recyclable recorded successfully. Points will be awarded only after a verified company completes collection and confirms the actual weight.');
 
     } catch (error) {
       console.error('Upload error:', error);
@@ -98,10 +106,38 @@ function Dashboard() {
     }
   };
 
-  const totalWeight = recyclables.reduce(
-    (total, item) => total + Number(item.weight || 0),
-    0
+  // Only completed company-verified pickups count as actually recycled.
+  const verifiedPickups = pickups.filter((item) =>
+    item.status === 'completed' && item.pointsProcessed === true &&
+    Number.isFinite(Number(item.verifiedWeight)) && Number(item.verifiedWeight) > 0
   );
+  const totalWeight = verifiedPickups.reduce((total, item) => total + Number(item.verifiedWeight), 0);
+  const verifiedPoints = verifiedPickups.reduce((total, item) => total + (Number(item.pointsAwarded) || 0), 0);
+  const spentPoints = redemptions.reduce((total, item) => total + (Number(item.pointsSpent) || 0), 0);
+  // A balance may include legitimate pre-migration activity not represented by pickup records.
+  const unexplainedBalance = points - verifiedPoints + spentPoints;
+
+  const events = [
+    ...recyclables.map((item) => ({
+      id: 'upload-' + item._id, date: item.createdAt, kind: 'Upload',
+      label: item.type || 'Recyclable', weight: item.weight,
+      detail: 'Self-reported — not yet company-verified', points: null
+    })),
+    ...pickups.map((item) => ({
+      id: 'pickup-' + item._id, date: item.updatedAt || item.createdAt, kind: 'Pickup',
+      label: item.material || 'Recycling pickup',
+      weight: item.status === 'completed' ? item.verifiedWeight : item.estimatedWeight,
+      detail: item.status === 'completed'
+        ? 'Completed — weight verified by recycling company'
+        : 'Status: ' + (item.status || 'pending') + ' — estimated weight',
+      points: item.status === 'completed' && item.pointsProcessed ? Number(item.pointsAwarded || 0) : null
+    })),
+    ...redemptions.map((item) => ({
+      id: 'redemption-' + item._id, date: item.createdAt, kind: 'Redemption',
+      label: item.rewardName || 'Reward', weight: null, detail: 'Status: ' + (item.status || 'pending'),
+      points: -(Number(item.pointsSpent) || 0)
+    }))
+  ].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
   return (
     <div className="page-container">
@@ -143,19 +179,19 @@ function Dashboard() {
         <div className="card stat-card">
           <h4>Total Recycled</h4>
           <strong>{totalWeight.toFixed(1)} kg</strong>
-          <span>♻️ Materials collected</span>
+          <span>♻️ Company-verified recycling (see pickup history)</span>
         </div>
 
         <div className="card stat-card">
           <h4>Reward Points</h4>
           <strong>{points}</strong>
-          <span>⭐ Available balance</span>
+          <span>⭐ Available balance · see activity below</span>
         </div>
 
         <div className="card stat-card">
           <h4>Total Uploads</h4>
           <strong>{recyclables.length}</strong>
-          <span>📦 Recycling records</span>
+          <span>📦 Upload submissions (not verified collections)</span>
         </div>
       </div>
 
@@ -164,7 +200,7 @@ function Dashboard() {
           <div>
             <h3>Add Recyclable</h3>
             <p>
-              Record a recyclable material and earn points.
+              Record a recyclable submission. Points are awarded after an approved company verifies the collected weight.
             </p>
           </div>
         </div>
@@ -199,7 +235,7 @@ function Dashboard() {
             <div className="empty-icon">♻️</div>
             <h4>No recyclables yet</h4>
             <p>
-              Upload your first recyclable material to begin earning points.
+              Your uploads will appear here. Only verified, completed pickups earn points.
             </p>
           </div>
         ) : (
@@ -208,7 +244,7 @@ function Dashboard() {
               <tr>
                 <th>Material</th>
                 <th>Weight</th>
-                <th>Estimated Points</th>
+                <th>Verification</th>
                 <th>Date</th>
               </tr>
             </thead>
@@ -227,7 +263,7 @@ function Dashboard() {
                   </td>
 
                   <td>
-                    {Number(recyclable.weight) * 10} pts
+                    Not yet verified
                   </td>
 
                   <td>
@@ -241,6 +277,46 @@ function Dashboard() {
               ))}
             </tbody>
           </table>
+        )}
+      </div>
+
+      <div className="card table-card">
+        <div className="section-heading">
+          <div>
+            <h3>Recycling &amp; Rewards History</h3>
+            <p>All recorded uploads, pickup progress and reward redemptions for this account.</p>
+          </div>
+        </div>
+        {loading ? <p>Loading your history...</p> : (
+          <>
+            <p><strong>{pickups.length}</strong> pickup requests · <strong>{verifiedPickups.length}</strong> completed and verified · <strong>{recyclables.length}</strong> upload records · <strong>{redemptions.length}</strong> redemptions.</p>
+            {unexplainedBalance !== 0 && (
+              <p role="note">Your current balance includes {unexplainedBalance > 0 ? 'points not traceable to the available verified pickup and redemption records' : 'historical adjustments or redemptions not fully explained by the available pickup records'}.
+                Existing balances have been preserved; no historical entries were invented.</p>
+            )}
+            {events.length === 0 ? (
+              <div className="empty-state">
+                <p>No recorded upload, pickup or redemption history is available yet. An existing points balance may predate these records.</p>
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table className="data-table">
+                  <thead><tr><th>Date</th><th>Activity</th><th>Material / Reward</th><th>Weight</th><th>Status / Verification</th><th>Points</th></tr></thead>
+                  <tbody>
+                    {events.map((event) => (
+                      <tr key={event.id}>
+                        <td>{event.date && !Number.isNaN(new Date(event.date).getTime()) ? new Date(event.date).toLocaleDateString('en-NG') : 'Date unavailable'}</td>
+                        <td>{event.kind}</td><td>{event.label}</td>
+                        <td>{event.weight == null ? '—' : Number(event.weight) + ' kg'}</td>
+                        <td>{event.detail}</td>
+                        <td>{event.points == null ? 'Not awarded' : (event.points > 0 ? '+' : '') + event.points}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
       </div>
 

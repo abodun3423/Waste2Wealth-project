@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import rewardsHero from '../assets/marketplace-hero.jpg';
@@ -6,6 +7,7 @@ function Rewards() {
   const [rewards, setRewards] = useState(null);
   const [redemptions, setRedemptions] = useState([]);
   const [recyclables, setRecyclables] = useState([]);
+  const [pickups, setPickups] = useState([]);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -20,30 +22,29 @@ function Rewards() {
         const [
           rewardsResponse,
           redemptionResponse,
-          recyclablesResponse
+          recyclablesResponse,
+          pickupsResponse
         ] = await Promise.all([
-          fetch('https://waste2wealth-project-3.onrender.com/api/rewards', {
+          fetch(`${API_URL}/api/rewards`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           }),
 
-          fetch('https://waste2wealth-project-3.onrender.com/api/redemptions', {
+          fetch(`${API_URL}/api/redemptions`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           }),
 
-          fetch('https://waste2wealth-project-3.onrender.com/api/recyclables', {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          })
+          fetch(`${API_URL}/api/recyclables`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${API_URL}/api/pickups`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
 
         const rewardsData = await rewardsResponse.json();
         const redemptionData = await redemptionResponse.json();
         const recyclablesData = await recyclablesResponse.json();
+        const pickupsData = await pickupsResponse.json();
 
         if (!rewardsResponse.ok) {
           throw new Error(
@@ -63,6 +64,8 @@ function Rewards() {
           );
         }
 
+        if (!pickupsResponse.ok || !Array.isArray(pickupsData)) throw new Error(pickupsData.error || 'Failed to load pickup history');
+        setPickups(pickupsData);
         setRewards(rewardsData);
         setRedemptions(redemptionData);
         setRecyclables(recyclablesData);
@@ -79,10 +82,7 @@ function Rewards() {
     loadRewardsData();
   }, [token]);
 
-  const totalRecycled = recyclables.reduce(
-    (total, item) => total + Number(item.weight || 0),
-    0
-  );
+  const totalRecycled = pickups.filter(p => p.status === 'completed' && p.pointsProcessed && Number(p.verifiedWeight) > 0).reduce((total, p) => total + Number(p.verifiedWeight), 0);
 
   const totalRedeemed = redemptions.length;
 

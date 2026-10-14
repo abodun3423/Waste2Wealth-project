@@ -133,66 +133,11 @@ router.post('/register', async (req, res) => {
 // ======================================
 // Used for an existing recycling company
 // to create its login password.
-router.post('/setup', async (req, res) => {
-  try {
-    const {
-      email,
-      password
-    } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        error: 'Email and password are required'
-      });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({
-        error: 'Password must be at least 6 characters'
-      });
-    }
-
-    const company = await RecyclingCompany.findOne({
-      email: email.toLowerCase().trim()
-    });
-
-    if (!company) {
-      return res.status(404).json({
-        error: 'Recycling company not found'
-      });
-    }
-
-    if (company.password) {
-      return res.status(400).json({
-        error: 'Company account has already been set up'
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(
-      password,
-      10
-    );
-
-    company.password = hashedPassword;
-
-    await company.save();
-
-    res.json({
-      message: 'Company account setup successfully'
-    });
-
-  } catch (error) {
-    console.error(
-      'Company account setup error:',
-      error
-    );
-
-    res.status(500).json({
-      error: 'Server error'
-    });
-  }
-});
-
+// Legacy setup allowed account takeover with only a company email.
+// Re-enable only when an admin-authorized, expiring, one-use invite flow exists.
+router.post('/setup', (_req, res) => res.status(403).json({
+  error: 'Legacy account setup is disabled. Contact an administrator.'
+}));
 
 // ======================================
 // COMPANY LOGIN

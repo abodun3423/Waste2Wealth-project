@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useMemo, useState } from 'react';
 import AdminSidebar from '../components/AdminSidebar';
 
@@ -25,7 +26,7 @@ function AdminRedemptions() {
       const token = localStorage.getItem('token');
 
       const response = await fetch(
-        'https://waste2wealth-project-3.onrender.com/api/admin/redemptions',
+        `${API_URL}/api/admin/redemptions`,
         {
           headers: {
             Authorization: `Bearer ${token}`

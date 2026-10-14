@@ -6,7 +6,19 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = (process.env.FRONTEND_ORIGINS || process.env.FRONTEND_ORIGIN || '')
+  .split(',').map(origin => origin.trim()).filter(Boolean);
+if (process.env.NODE_ENV === 'production' && allowedOrigins.length === 0) {
+  console.error('FRONTEND_ORIGIN or FRONTEND_ORIGINS must be configured in production');
+  process.exit(1);
+}
+app.use(cors({
+  origin(origin, callback) {
+    // Non-browser traffic without an Origin header may still authenticate using JWT.
+    if (!origin) return callback(null, true);
+    return callback(null, allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production');
+  }
+}));
 app.use(express.json());
 
 // Routes
@@ -38,7 +50,7 @@ if (!mongoURI) {
 }
 
 mongoose.connect(mongoURI)
-  .then(() => console.log("✅ MongoDB connected"))
+  .then(() => { console.log("✅ MongoDB connected"); console.log("Active database:", mongoose.connection.name); })
   .catch(err => {
     console.error("❌ MongoDB connection error:", err);
     process.exit(1);
