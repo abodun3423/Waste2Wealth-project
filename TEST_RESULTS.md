@@ -5,9 +5,10 @@ Date: 2026-10-14. This report distinguishes tests **actually executed** from tes
 | Verification | Result |
 |---|---|
 | Reward policy unit tests (isolated local Node.js runner) | PASS: 3 tests, 0 failed |
-| React `npm ci` offline attempt | BLOCKED: required package tarball not cached; not a code failure |
+| Local React `npm ci` offline attempt | BLOCKED: required package tarball not cached; not a code failure |
 | Frontend production build in local runner | NOT RUN (dependencies unavailable) |
-| MongoDB API integration and concurrent pickup/redemption tests | ADDED TO CI; outcome to be verified from GitHub Actions |
+| Frontend production build in GitHub Actions | PASS on workflow run 38526345426; further runs may supersede it |
+| MongoDB API integration and concurrent pickup/redemption tests | PASS as part of backend-unit job on GitHub Actions run 38526345426; check latest commit again before merge |
 | Render production validation | NOT RUN (production left unchanged) |
 | Vercel production validation | NOT RUN (production left unchanged) |
 | GitHub diff and branch | Draft PR, no merge |
