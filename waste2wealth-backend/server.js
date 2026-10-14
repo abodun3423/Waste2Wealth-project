@@ -4,6 +4,9 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+// Render terminates HTTPS at its reverse proxy. Trust only its immediate hop
+// so per-client request limits can use the forwarded client IP.
+if (process.env.RENDER === 'true') app.set('trust proxy', 1);
 
 // Middleware
 const allowedOrigins = (process.env.FRONTEND_ORIGINS || process.env.FRONTEND_ORIGIN || '')
