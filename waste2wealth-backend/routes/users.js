@@ -1,3 +1,4 @@
+const rateLimit = require('../middleware/rateLimit');
 const express = require('express');
 const router = express.Router();
 
@@ -10,7 +11,7 @@ const jwt = require('jsonwebtoken');
 // REGISTER USER
 // ==========================
 
-router.post('/register', async (req, res) => {
+router.post('/register', rateLimit({ max: 8 }), async (req, res) => {
   try {
 
     const {
@@ -21,7 +22,7 @@ router.post('/register', async (req, res) => {
 
 
     // Check required fields
-    if (!name || !email || !password) {
+    if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string' || !name.trim() || !email.trim() || !password) {
 
       return res.status(400).json({
         error:
@@ -31,6 +32,7 @@ router.post('/register', async (req, res) => {
     }
 
 
+    if (password.length < 8 || password.length > 128 || name.length > 120 || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return res.status(400).json({error:'Provide a valid email, name and password (8–128 characters)'});
     // Check if user already exists
     const existingUser =
       await User.findOne({ email });
@@ -110,7 +112,7 @@ router.post('/register', async (req, res) => {
 // LOGIN USER / ADMIN
 // ==========================
 
-router.post('/login', async (req, res) => {
+router.post('/login', rateLimit({ max: 12 }), async (req, res) => {
 
   try {
 
@@ -121,7 +123,7 @@ router.post('/login', async (req, res) => {
 
 
     // Check required fields
-    if (!email || !password) {
+    if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
 
       return res.status(400).json({
         error:
