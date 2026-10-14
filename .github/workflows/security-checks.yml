@@ -20,6 +20,8 @@ jobs:
           cache: npm
           cache-dependency-path: waste2wealth-backend/package-lock.json
       - run: npm ci --ignore-scripts --no-audit
+      - name: Audit production dependencies for critical advisories
+        run: npm audit --omit=dev --audit-level=critical
       - name: Start isolated MongoDB replica set
         run: |
           docker run -d --name waste2wealth-ci-mongo -p 27017:27017 mongo:7.0 --replSet rs0 --bind_ip_all
