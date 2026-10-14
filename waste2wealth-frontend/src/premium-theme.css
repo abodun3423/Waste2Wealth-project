@@ -1,0 +1,60 @@
+/* Premium eco-tech design layer: intentionally separate from legacy styles. */
+:root {
+  --primary: #116a61;
+  --primary-dark: #103b43;
+  --primary-light: #d9f2e9;
+  --accent: #d7a64b;
+  --background: #f3f6f7;
+  --surface: #ffffff;
+  --text: #152f37;
+  --text-light: #60757b;
+  --border: #dfe8e9;
+  --success: #08795a;
+  --warning: #a96810;
+  --radius: 18px;
+  --shadow: 0 16px 42px rgba(17, 46, 58, .07), 0 2px 8px rgba(17, 46, 58, .03);
+}
+body { background: var(--background); color: var(--text); letter-spacing: -.006em; }
+.app-shell { background: radial-gradient(circle at 95% 0%, #e8f5f3 0%, #f3f6f7 40%, #f3f6f7 100%); }
+.sidebar {
+  background: linear-gradient(155deg, #0b343e 0%, #114b4d 59%, #0e5850 100%);
+  box-shadow: 12px 0 30px rgba(8,38,44,.10);
+}
+.brand-icon { background: linear-gradient(140deg, #b1e9d6, #e5bf77); color: #113e43; box-shadow: 0 6px 18px #051c2433; }
+.sidebar-link { border: 1px solid transparent; border-radius: 12px; }
+.sidebar-link:hover { background: rgba(255,255,255,.11); transform: translateX(2px); }
+.sidebar-link.active { background: rgba(190,240,223,.17); border-color: rgba(190,240,223,.22); box-shadow: inset 3px 0 #e2b75e; }
+.topbar { background: rgba(255,255,255,.94); border-color: #e2ebeb; box-shadow: 0 3px 14px rgba(12,45,52,.035); }
+.card, .recycling-search-card, .recycling-company-card, .pickup-history-card {
+  border: 1px solid #dfebeb; border-radius: 18px;
+  box-shadow: var(--shadow); transition: box-shadow .2s ease, transform .2s ease;
+}
+.card:hover, .recycling-company-card:hover { box-shadow: 0 18px 46px rgba(17,46,58,.10); }
+.stat-card { position: relative; overflow: hidden; border-top: 3px solid #2a9882; }
+.stat-card:nth-child(3n+2) { border-top-color: #d9ac55; }
+.stat-card:nth-child(3n+3) { border-top-color: #669cb0; }
+.stat-card strong { color: #173f45; font-weight: 800; letter-spacing: -.04em; }
+.primary-button, .recycling-search-btn, .recycling-location-btn {
+  border-radius: 12px; font-weight: 700; transition: transform .15s ease, filter .15s ease;
+}
+.primary-button, .recycling-search-btn { background: linear-gradient(110deg, #0e7267, #0f5459); color: #fff; box-shadow: 0 7px 18px rgba(20,108,99,.18); }
+.primary-button:hover, .recycling-search-btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.input, .recycling-field input, .recycling-field select { border-radius: 12px; border: 1px solid #d4e2e2; background: #fff; }
+.input:focus, .recycling-field input:focus, .recycling-field select:focus { outline: 3px solid rgba(31,153,134,.14); border-color: #219682; }
+.data-table th { background: #f4f9f8; color: #43656c; text-transform: uppercase; letter-spacing: .055em; }
+.data-table tr:hover td { background: #f7faf9; }
+.dashboard-hero, .recycling-hero, .pickups-hero, .rewards-hero {
+  border-radius: 22px; overflow: hidden; box-shadow: 0 20px 44px rgba(10,51,57,.16);
+}
+.hero-tag, .recycling-eyebrow, .pickups-hero-label { letter-spacing: .09em; }
+a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #d8ad57; outline-offset: 3px; }
+@media (max-width: 760px) {
+  .page-container { padding: 18px; }
+  .stats-grid { gap: 12px; }
+  .card { padding: 18px; }
+  .data-table { min-width: 650px; }
+  .table-card { overflow-x: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
