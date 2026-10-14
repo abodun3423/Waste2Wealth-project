@@ -936,4 +936,20 @@ router.get('/analytics', adminAuth, async (req, res) => {
   }
 });
 
+// Admin may deactivate or reactivate an existing company.
+router.patch('/companies/:id/account-status', adminAuth, async (req, res) => {
+  try {
+    if (typeof req.body.accountActive !== 'boolean') return res.status(400).json({error:'accountActive must be true or false'});
+    if (!require('mongoose').isValidObjectId(req.params.id)) return res.status(400).json({error:'Invalid company ID'});
+    const company = await RecyclingCompany.findByIdAndUpdate(req.params.id,
+      { $set: { accountActive: req.body.accountActive } }, {new:true,runValidators:true});
+    if (!company) return res.status(404).json({error:'Company not found'});
+    return res.json({message: company.accountActive ? 'Company activated' : 'Company deactivated',
+      company: {_id:company._id,companyName:company.companyName,verified:company.verified,accountActive:company.accountActive}});
+  } catch (error) {
+    console.error('Company account status update failed',error);
+    return res.status(500).json({error:'Unable to update company account'});
+  }
+});
+
 module.exports = router;
