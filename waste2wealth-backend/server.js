@@ -38,7 +38,7 @@ if (!mongoURI) {
 }
 
 mongoose.connect(mongoURI)
-  .then(() => console.log("✅ MongoDB connected"))
+  .then(() => { console.log("✅ MongoDB connected"); console.log("Active database:", mongoose.connection.name); })
   .catch(err => {
     console.error("❌ MongoDB connection error:", err);
     process.exit(1);
