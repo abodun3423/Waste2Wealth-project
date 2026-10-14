@@ -18,3 +18,5 @@ The test script refuses to connect unless `TEST_MONGO_URI` selects the exact dat
 
 ## Required release gates
 Before changing the PR from draft to ready, obtain successful backend and frontend checks, review the transactional concurrent test outcomes, inspect credentials in repository history, reconcile the uploaded local changes, and assess deployment compatibility.
+
+Verified GitHub Actions run [38526837657](https://github.com/abodun3423/Waste2Wealth-project/actions/runs/38526837657) reported successful backend and frontend jobs on an earlier commit. The latest frontend API configuration change requires its own checks to finish before merge.
