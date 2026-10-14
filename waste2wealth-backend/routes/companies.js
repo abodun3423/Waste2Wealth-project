@@ -5,7 +5,7 @@ const RecyclingCompany = require('../models/RecyclingCompany');
 const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
 // Escape user-supplied search terms to avoid regex injection and excessive patterns.
-const safeSearch = (value) => new RegExp(String(value).slice(0, 80).replace(/[.*+?^${}()|[\]\\]/g, '\\const adminAuth = require('../middleware/adminAuth');'), 'i');
+const safeSearch = (value) => new RegExp(String(value).slice(0, 80).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
 
 
 
