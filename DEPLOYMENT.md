@@ -14,7 +14,9 @@ Do not merge until the backend security CI, isolated MongoDB concurrency tests, 
 4. Reconcile any uncommitted local work and verify checkout does not overwrite it.
 5. Confirm legacy company `/api/company-auth/setup` is no longer needed; it is disabled because email alone cannot prove ownership.
 6. Confirm that verified and active flags are populated on historical company documents as appropriate; any absent flags are treated as not authorized. Do not bulk-approve users or companies automatically.
-7. Check frontend API base URL configuration and restrict CORS to the actual authorized Vercel hosts before production deployment.
+7. **Required:** Set Render environment variable `FRONTEND_ORIGIN` to the exact production Vercel origin (scheme + hostname, no trailing slash), or `FRONTEND_ORIGINS` to a comma-separated allowlist. In `NODE_ENV=production` the backend deliberately refuses startup without an allowed origin. Do not merge until this is configured or deliberately staged.
+8. Set Vercel `REACT_APP_API_URL` to the target backend base URL for staging/production when desired. If unset, the legacy production Render URL is the default. Always set staging to an isolated backend; never submit test transactions against production.
+9. The admin setup script now requires one-time `ADMIN_EMAIL` and `ADMIN_INITIAL_PASSWORD` (16+ characters). Remove initial-password variables after admin creation; inspect and rotate previously exposed default credentials if used.
 
 ## Rollout
 Merge only after security reviews; deploy backend with a staging smoke test before exposing it, then the frontend. Verify legitimate registration/login, admin approval, pickups, points, and redemption flows. Monitor transaction error rates and balances.
