@@ -62,6 +62,7 @@ router.post('/', auth, async (req, res) => {
       });
     }
 
+    if (!company.verified || !company.accountActive) return res.status(403).json({ error: 'Only verified active companies can receive pickups' });
     if (!company.pickupAvailable) {
       return res.status(400).json({
         error: 'Pickup is not available for this company'
