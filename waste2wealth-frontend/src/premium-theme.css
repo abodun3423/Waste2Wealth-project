@@ -4,6 +4,8 @@
   --primary-dark: #103b43;
   --primary-light: #d9f2e9;
   --accent: #d7a64b;
+  --renewal-green: #1b7f5a;
+  --renewal-bright: #44b977;
   --background: #f3f6f7;
   --surface: #ffffff;
   --text: #152f37;
@@ -58,3 +60,10 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+/* Renewal green connects the premium identity explicitly to recycling. */
+.recycling-verified, .recycling-pickup-badge, .status-badge.success { color: #0e6247; background: #e0f5e8; }
+.pickup-progress-step.active .pickup-step-circle { background: var(--renewal-green); color: white; }
+.dashboard-stats .stat-card:first-child { border-top-color: var(--renewal-green); }
+.hero-tag { border: 1px solid rgba(126,225,164,.24); }
+.recycling-company-logo, .pickup-company-icon { color: var(--renewal-green); }
