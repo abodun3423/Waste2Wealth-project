@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useState } from 'react';
 
 import marketplaceHero from '../assets/marketplace-hero.jpg';
@@ -55,7 +56,7 @@ function Marketplace() {
     const fetchPoints = async () => {
       try {
         const response = await fetch(
-          'https://waste2wealth-project-3.onrender.com/api/rewards',
+          `${API_URL}/api/rewards`,
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -89,7 +90,7 @@ function Marketplace() {
       setRedeeming(reward.id);
 
       const response = await fetch(
-        'https://waste2wealth-project-3.onrender.com/api/redemptions',
+        `${API_URL}/api/redemptions`,
         {
           method: 'POST',
           headers: {

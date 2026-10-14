@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useState } from 'react';
 
 function RecyclingCompanies() {
@@ -72,7 +73,7 @@ function RecyclingCompanies() {
       query.append('pickupAvailable', 'true');
 
       const response = await fetch(
-        `https://waste2wealth-project-3.onrender.com/api/companies?${query.toString()}`,
+        `${API_URL}/api/companies?${query.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -229,7 +230,7 @@ function RecyclingCompanies() {
       setPickupMessage('');
 
       const response = await fetch(
-        'https://waste2wealth-project-3.onrender.com/api/pickups',
+        `${API_URL}/api/pickups`,
         {
           method: 'POST',
 

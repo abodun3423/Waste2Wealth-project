@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import loginImage from '../assets/login-recycling.jpg';
@@ -17,7 +18,7 @@ function CompanyLogin() {
 
     try {
       const response = await fetch(
-        'https://waste2wealth-project-3.onrender.com/api/company-auth/login',
+        `${API_URL}/api/company-auth/login`,
         {
           method: 'POST',
           headers: {

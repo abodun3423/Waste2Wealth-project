@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useMemo, useState } from 'react';
 import AdminSidebar from '../components/AdminSidebar';
 
@@ -18,7 +19,7 @@ function AdminCompanies() {
       const token = localStorage.getItem('token');
 
       const response = await fetch(
-        'https://waste2wealth-project-3.onrender.com/api/admin/companies',
+        `${API_URL}/api/admin/companies`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -52,7 +53,7 @@ function AdminCompanies() {
       const token = localStorage.getItem('token');
 
       const response = await fetch(
-        `https://waste2wealth-project-3.onrender.com/api/admin/companies/${company._id}/verification`,
+        `${API_URL}/api/admin/companies/${company._id}/verification`,
         {
           method: 'PATCH',
           headers: {

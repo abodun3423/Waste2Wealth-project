@@ -1,7 +1,8 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = 'https://waste2wealth-project-3.onrender.com';
+
 
 function CompanyDashboard() {
   const navigate = useNavigate();

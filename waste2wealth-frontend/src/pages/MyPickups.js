@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useState } from 'react';
 
 function MyPickups() {
@@ -20,7 +21,7 @@ function MyPickups() {
         setMessage('');
 
         const response = await fetch(
-          'https://waste2wealth-project-3.onrender.com/api/pickups',
+          `${API_URL}/api/pickups`,
           {
             headers: {
               Authorization: `Bearer ${token}`

@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import rewardsHero from '../assets/marketplace-hero.jpg';
@@ -22,19 +23,19 @@ function Rewards() {
           redemptionResponse,
           recyclablesResponse
         ] = await Promise.all([
-          fetch('https://waste2wealth-project-3.onrender.com/api/rewards', {
+          fetch(`${API_URL}/api/rewards`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           }),
 
-          fetch('https://waste2wealth-project-3.onrender.com/api/redemptions', {
+          fetch(`${API_URL}/api/redemptions`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           }),
 
-          fetch('https://waste2wealth-project-3.onrender.com/api/recyclables', {
+          fetch(`${API_URL}/api/recyclables`, {
             headers: {
               Authorization: `Bearer ${token}`
             }

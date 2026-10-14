@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useState } from 'react';
 import AdminSidebar from '../components/AdminSidebar';
 
@@ -17,7 +18,7 @@ function AdminUsers() {
         setLoading(true);
 
         const response = await fetch(
-          'https://waste2wealth-project-3.onrender.com/api/admin/users',
+          `${API_URL}/api/admin/users`,
           {
             headers: {
               Authorization: `Bearer ${token}`

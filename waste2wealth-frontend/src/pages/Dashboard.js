@@ -1,3 +1,4 @@
+import { API_URL } from '../apiBase';
 import React, { useEffect, useState } from 'react';
 import RecyclableForm from '../components/RecyclableForm';
 import dashboardHero from '../assets/dashboard-hero.jpg';
@@ -16,13 +17,13 @@ function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         const [recyclablesResponse, rewardsResponse] = await Promise.all([
-          fetch('https://waste2wealth-project-3.onrender.com/api/recyclables', {
+          fetch(`${API_URL}/api/recyclables`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           }),
 
-          fetch('https://waste2wealth-project-3.onrender.com/api/rewards', {
+          fetch(`${API_URL}/api/rewards`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -61,7 +62,7 @@ function Dashboard() {
       setMessage('');
 
       const response = await fetch(
-        'https://waste2wealth-project-3.onrender.com/api/recyclables',
+        `${API_URL}/api/recyclables`,
         {
           method: 'POST',
           headers: {
