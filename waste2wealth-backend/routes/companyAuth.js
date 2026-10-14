@@ -1,3 +1,4 @@
+const rateLimit = require('../middleware/rateLimit');
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
@@ -8,7 +9,7 @@ const RecyclingCompany = require('../models/RecyclingCompany');
 // ======================================
 // COMPANY REGISTRATION
 // ======================================
-router.post('/register', async (req, res) => {
+router.post('/register', rateLimit({max: 8}), async (req, res) => {
   try {
     const {
       companyName,
@@ -38,9 +39,9 @@ router.post('/register', async (req, res) => {
     }
 
     // Password validation
-    if (password.length < 6) {
+    if (typeof password !== 'string' || password.length < 8 || password.length > 128) {
       return res.status(400).json({
-        error: 'Password must be at least 6 characters'
+        error: 'Password must be 8–128 characters'
       });
     }
 
@@ -54,6 +55,7 @@ router.post('/register', async (req, res) => {
       });
     }
 
+    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) || [companyName, phone, address, city, state].some(value => typeof value !== 'string' || value.length > 250)) return res.status(400).json({error:'Invalid company registration details'});
     const normalizedEmail =
       email.toLowerCase().trim();
 
@@ -142,14 +144,14 @@ router.post('/setup', (_req, res) => res.status(403).json({
 // ======================================
 // COMPANY LOGIN
 // ======================================
-router.post('/login', async (req, res) => {
+router.post('/login', rateLimit({max: 12}), async (req, res) => {
   try {
     const {
       email,
       password
     } = req.body;
 
-    if (!email || !password) {
+    if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
       return res.status(400).json({
         error: 'Email and password are required'
       });

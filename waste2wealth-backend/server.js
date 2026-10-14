@@ -4,6 +4,9 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+// Render terminates HTTPS at its reverse proxy. Trust only its immediate hop
+// so per-client request limits can use the forwarded client IP.
+if (process.env.RENDER === 'true') app.set('trust proxy', 1);
 
 // Middleware
 const allowedOrigins = (process.env.FRONTEND_ORIGINS || process.env.FRONTEND_ORIGIN || '')
@@ -19,7 +22,14 @@ app.use(cors({
     return callback(null, allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production');
   }
 }));
-app.use(express.json());
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  next();
+});
+app.use(express.json({limit: '64kb'}));
 
 // Routes
 const userRoutes = require('./routes/users');
